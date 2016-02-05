@@ -1,5 +1,5 @@
 <?php
-  namespace Roots\Sage\Comments;
+  namespace Roots\Sage\Custom\CommentsDisplay;
 
   function _load_more($text, $after = null, $child_of = 0) {
     $fake_api_url = \add_query_arg([

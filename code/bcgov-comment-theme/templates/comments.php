@@ -1,6 +1,6 @@
 <?php
 
-use Roots\Sage\Comments;
+use Roots\Sage\Custom\CommentsDisplay;
 
 if (post_password_required()) {
   return;
@@ -22,7 +22,7 @@ if (post_password_required()) {
         'style' => 'ol',
         'short_ping' => true,
         'callback' => 'bcgov_comments',
-        'walker' => Comments\walker_for_query_args(),
+        'walker' => CommentsDisplay\walker_for_query_args(),
         'max_depth' => 2,
       ] );
       ?>

@@ -22,7 +22,7 @@ if (post_password_required()) {
         'style' => 'ol',
         'short_ping' => true,
         'callback' => 'bcgov_comments',
-        'walker' => new Comments\Walker_AddsLoadMore(),
+        'walker' => Comments\walker_for_query_args(),
         'max_depth' => 2,
       ] );
       ?>

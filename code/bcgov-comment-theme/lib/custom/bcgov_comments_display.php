@@ -7,7 +7,7 @@
       'minimal'             => 1,
       'comments_only_after' => $after,
     ], get_site_url() . '/');
-    return "<li><button class='handles-load-more btn btn-primary' data-src='$fake_api_url'>$text [after $after] </button></li>";
+    return "<li><button class='handles-load-more btn btn-xs btn-primary' data-src='$fake_api_url'>$text [after $after] </button></li>";
   }
 
   // Walker to add a 'load more' link to the end of each comment list.
@@ -22,7 +22,7 @@
 
     public function display_element( $element, &$children_elements, $max_depth,
                                      $depth, $args, &$output ) {
-      $this->count_stack[count($this->count_stack) - 1]++;
+      $this->count_stack[$depth]++;
       if ( !$element || end($this->count_stack) > $this->max_count)
         return;
 
@@ -60,11 +60,42 @@
     }
   }
 
+  class Walker_NoneBefore extends Walker_AddsLoadMore {
+    private $look_for_id = 0;
+    private $has_after_id_been_found = false;
+
+    function __construct( $only_comments_after ) {
+      $this->look_for_id = $only_comments_after;
+      parent::__construct();
+    }
+
+    public function display_element( $element, &$children_elements, $max_depth,
+                                     $depth, $args, &$output ) {
+      if ( $element->comment_ID == $this->look_for_id ) {
+        $this->has_after_id_been_found = true;
+        return;
+      }
+
+      if ( $this->has_after_id_been_found )
+        parent::display_element( $element, $children_elements, $max_depth, $depth, $args, $output );
+    }
+  }
+
+  function walker_for_query_args() {
+    global $wp_query;
+
+    if ( isset($wp_query->query_vars['comments_only_after'] )) {
+      return new Walker_NoneBefore( intval( $wp_query->query_vars['comments_only_after'] ) );
+    } else {
+      return new Walker_AddsLoadMore();
+    }
+  }
+
   function set_up_comment_qvars() {
     // Will not be present if loading more top-level comments
     add_rewrite_tag('%comments_child_of%', '([1-9][0-9]*)');
     // Returns the next N comments after this one (id)
-    add_rewrite_tag('%only_comments_after%', '([1-9][0-9]*)');
+    add_rewrite_tag('%comments_only_after%', '([1-9][0-9]*)');
   }
   add_action('init', __NAMESPACE__ . '\\set_up_comment_qvars');
 ?>

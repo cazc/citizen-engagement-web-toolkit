@@ -66,6 +66,47 @@ function widgets_init() {
 add_action('widgets_init', __NAMESPACE__ . '\\widgets_init');
 
 /**
+ * Register custom comment loading settings.
+ */
+function comment_settings_init( $wp_customize ) {
+  /* Setting: How many comments to display on the initial page load?
+   * This also applies to children, so a value of 5 will give you
+   * 5 comments with 5 immediate children each. */
+  $wp_customize->add_setting( 'comments_per_set_initial' , array(
+    'default'    => 20,
+    'transport'  => 'refresh',
+  ));
+
+  /* Setting: How many comments to display when 'load more' is clicked?
+   * When set to 0, it will use the value from comments_per_set_initial
+   * instead. */
+  $wp_customize->add_setting( 'comments_per_set_append' , array(
+    'default'    => 0, // 0 = use comments_per_set_initial
+    'transport'  => 'refresh',
+  ));
+
+  $wp_customize->add_section( 'bcgov_comments_config' , array(
+    'title'      => __( 'Comment Loading', 'sage' ),
+    'priority'   => 50,
+  ));
+
+  $wp_customize->add_control(new \WP_Customize_Control($wp_customize, 'comments_per_set_initial', [
+    'label'      => __( 'Number of comments to display initially', 'sage' ),
+    'section'    => 'bcgov_comments_config',
+    'settings'   => 'comments_per_set_initial',
+    'type'       => 'number',
+  ]));
+
+  $wp_customize->add_control(new \WP_Customize_Control($wp_customize, 'comments_per_set_append', [
+    'label'      => __( 'Number of comments to load when requested', 'sage' ),
+    'section'    => 'bcgov_comments_config',
+    'settings'   => 'comments_per_set_append',
+    'type'       => 'number',
+  ]));
+}
+add_action('customize_register', __NAMESPACE__ . '\\comment_settings_init');
+
+/**
  * Include custom comment callback function
  */
 include_once 'custom/bcgov_comment.php';

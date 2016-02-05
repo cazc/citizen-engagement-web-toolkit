@@ -1,11 +1,12 @@
 <?php
   namespace Roots\Sage\Comments;
 
-  function _load_more($text, $after = null) {
+  function _load_more($text, $after = null, $child_of = 0) {
     $fake_api_url = \add_query_arg([
       'comments_popup'      => get_the_ID(),
       'minimal'             => 1,
       'comments_only_after' => $after,
+      'comments_child_of'   => $child_of,
     ], get_site_url() . '/');
     return "<li><button class='handles-load-more btn btn-xs btn-primary' data-src='$fake_api_url'>$text [after $after] </button></li>";
   }
@@ -62,10 +63,12 @@
 
   class Walker_NoneBefore extends Walker_AddsLoadMore {
     private $look_for_id = 0;
+    private $look_at_children_of = 0;
     private $has_after_id_been_found = false;
 
-    function __construct( $only_comments_after ) {
+    function __construct( $only_comments_after, $only_children_of ) {
       $this->look_for_id = $only_comments_after;
+      $this->look_at_children_of = $only_children_of;
       parent::__construct();
     }
 
@@ -76,7 +79,7 @@
         return;
       }
 
-      if ( $this->has_after_id_been_found )
+      if ( $this->has_after_id_been_found && !($depth === 0 && $element->comment_parent != $this->look_at_children_of) )
         parent::display_element( $element, $children_elements, $max_depth, $depth, $args, $output );
     }
   }
@@ -85,7 +88,13 @@
     global $wp_query;
 
     if ( isset($wp_query->query_vars['comments_only_after'] )) {
-      return new Walker_NoneBefore( intval( $wp_query->query_vars['comments_only_after'] ) );
+      if (isset($wp_query->query_vars['comments_child_of'])) {
+        $child_of = intval( $wp_query->query_vars['comments_child_of'] );
+      } else {
+        $child_of = 0;
+      }
+
+      return new Walker_NoneBefore( intval( $wp_query->query_vars['comments_only_after'] ), $child_of );
     } else {
       return new Walker_AddsLoadMore();
     }

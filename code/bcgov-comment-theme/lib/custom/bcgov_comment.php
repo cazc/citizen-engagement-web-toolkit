@@ -21,7 +21,7 @@ function bcgov_comments( $comment, $args, $depth ) {
                         <div class="comment-right col-md-11 col-sm-11 col-xs-11">
                             <div class="row comment-top">
                                 <div class="comment-author col-md-12 col-sm-12 col-xs-12">
-                                    <span class="author-name"><?php echo $commentAuthor; ?></span>
+                                    <span class="author-name"><?php comment_author(); ?></span>
                                 </div>
                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                     <time <?php comment_time( 'c' ); ?> class="comment-time">

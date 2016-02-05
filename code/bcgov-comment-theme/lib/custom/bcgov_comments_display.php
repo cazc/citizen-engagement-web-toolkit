@@ -2,7 +2,12 @@
   namespace Roots\Sage\Comments;
 
   function _load_more($text, $after = null) {
-    return "<li><button class='load-more btn btn-primary'>$text [after $after] </button></li>";
+    $fake_api_url = \add_query_arg([
+      'comments_popup'      => get_the_ID(),
+      'minimal'             => 1,
+      'comments_only_after' => $after,
+    ], get_site_url() . '/');
+    return "<li><button class='handles-load-more btn btn-primary' data-src='$fake_api_url'>$text [after $after] </button></li>";
   }
 
   // Walker to add a 'load more' link to the end of each comment list.
